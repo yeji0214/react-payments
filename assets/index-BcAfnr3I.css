@@ -1,0 +1,113 @@
+._inputContainer_5mu3n_1 {
+  padding: 10px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+._inputTitle_5mu3n_7 {
+  font-size: 25px;
+  margin: 10px 0 0 0;
+}
+
+._inputSubTitle_5mu3n_12 {
+  font-size: 15px;
+  margin: 5px 0;
+  color: #8b95a1;
+}
+._preview_3fedz_1 {
+  position: relative;
+  width: 300px;
+  height: 180px;
+  background-color: #333333;
+  border-radius: 10px;
+  box-shadow: 7px 6px 14px -6px rgba(0, 0, 0, 0.75);
+  -webkit-box-shadow: 7px 6px 14px -6px rgba(0, 0, 0, 0.75);
+  -moz-box-shadow: 7px 6px 14px -6px rgba(0, 0, 0, 0.75);
+  color: white;
+  font-family: monospace;
+  margin: 70px 0;
+}
+
+._magnetic_3fedz_15 {
+  position: absolute;
+  width: 50px;
+  height: 33px;
+  top: 15px;
+  left: 20px;
+}
+
+._visa_3fedz_23 {
+  position: absolute;
+  width: 50px;
+  height: 33px;
+  top: 15px;
+  left: 230px;
+}
+
+._cardInfo_3fedz_31 {
+  margin: 0 auto;
+  padding: 0 20px;
+  padding-top: 25%;
+  text-align: center;
+}
+
+._cardNumberContainer_3fedz_38 {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 18px;
+  letter-spacing: 2px;
+}
+
+._cardNumberContainer_3fedz_38 > span {
+  text-align: center;
+  white-space: pre;
+}
+
+._date_3fedz_51 {
+  display: flex;
+  justify-content: flex-start;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: 14px;
+}
+.app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 400px;
+  margin: auto;
+  max-width: 400px;
+}
+
+.label {
+  font-size: 18px;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.inputContainer {
+  gap: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.input {
+  width: 100%;
+  padding: 10px 10px;
+  border: 1px solid #acacac;
+  border-radius: 5px;
+}
+
+.input:focus {
+  outline: 1px solid black;
+}
+
+.helperText {
+  color: red;
+  font-size: 15px;
+}
+
+.errorInput:focus {
+  outline: 1px solid red;
+}
