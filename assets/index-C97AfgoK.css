@@ -1,0 +1,243 @@
+._preview_usdk6_1 {
+  position: relative;
+  width: 300px;
+  height: 180px;
+  /* background-color: #333333; */
+  border-radius: 10px;
+  box-shadow: 7px 6px 14px -6px rgba(0, 0, 0, 0.75);
+  -webkit-box-shadow: 7px 6px 14px -6px rgba(0, 0, 0, 0.75);
+  -moz-box-shadow: 7px 6px 14px -6px rgba(0, 0, 0, 0.75);
+  color: white;
+  font-family: monospace;
+  margin: 70px 0;
+}
+
+._magnetic_usdk6_15 {
+  position: absolute;
+  width: 50px;
+  height: 33px;
+  top: 15px;
+  left: 20px;
+}
+
+._visa_usdk6_23 {
+  position: absolute;
+  width: 50px;
+  height: 33px;
+  top: 15px;
+  left: 230px;
+}
+
+._cardInfo_usdk6_31 {
+  margin: 0 auto;
+  padding: 0 20px;
+  padding-top: 25%;
+  text-align: center;
+}
+
+._cardNumberContainer_usdk6_38 {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 18px;
+  letter-spacing: 2px;
+}
+
+._cardNumberContainer_usdk6_38 > span {
+  text-align: center;
+  white-space: pre;
+}
+
+._date_usdk6_51 {
+  display: flex;
+  justify-content: flex-start;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: 14px;
+}
+html::-webkit-scrollbar {
+  display: none;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 400px;
+  margin: auto;
+  max-width: 400px;
+}
+
+.label {
+  font-size: 18px;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.inputContainer {
+  gap: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.helperText {
+  color: red;
+  font-size: 15px;
+}
+._wrapper_j051z_1 {
+  position: relative;
+  width: 100%;
+  margin-bottom: 25px;
+}
+
+._selectBox_j051z_7 {
+  border: 1px solid #acacac;
+  border-radius: 6px;
+  padding: 12px 14px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+}
+
+._selectBox_j051z_7:focus {
+  outline: 1px solid black;
+}
+
+._placeholder_j051z_22 {
+  color: #aaa;
+}
+
+._selected_j051z_26 {
+  color: #000;
+}
+
+._arrow_j051z_30 {
+  margin-left: 8px;
+  font-size: 12px;
+}
+
+._optionList_j051z_35 {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  z-index: 10;
+  max-height: calc(8 * 43.5px);
+  overflow-y: auto;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+._option_j051z_35 {
+  padding: 12px 14px;
+  cursor: pointer;
+}
+
+._option_j051z_35:hover {
+  background: #f4f4f4;
+}
+._inputContainer_5mu3n_1 {
+  padding: 10px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+._inputTitle_5mu3n_7 {
+  font-size: 25px;
+  margin: 10px 0 0 0;
+}
+
+._inputSubTitle_5mu3n_12 {
+  font-size: 15px;
+  margin: 5px 0;
+  color: #8b95a1;
+}
+._input_1pui7_1 {
+  width: 100%;
+  padding: 10px 10px;
+  border: 1px solid #acacac;
+  border-radius: 5px;
+}
+
+._input_1pui7_1:focus {
+  outline: 1px solid black;
+}
+
+._errorInput_1pui7_12:focus {
+  outline: 1px solid red;
+}
+@keyframes _slideFadeIn_l8pol_1 {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+._fadeInWrapper_l8pol_12 {
+  animation: _slideFadeIn_l8pol_1 0.5s ease-out;
+}
+
+form {
+  padding-bottom: 60px;
+}
+._registerCardButton_gez2x_1 {
+  width: 400px;
+  background-color: #333333;
+  color: white;
+  height: 50px;
+  font-size: 16px;
+  font-weight: 600;
+  position: fixed;
+  bottom: 0;
+}
+
+._registerAnotherCardButton_gez2x_12 {
+  width: 350px;
+  background-color: #333333;
+  color: white;
+  height: 50px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 10px;
+}
+
+._registerAnotherCardButton_gez2x_12:hover {
+  cursor: pointer;
+}
+._wrapper_1korc_1 {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+._completeIcon_1korc_9 {
+  width: 70px;
+  margin-bottom: 20px;
+}
+
+._registerCardText_1korc_14 {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  margin-bottom: 40px;
+}
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
