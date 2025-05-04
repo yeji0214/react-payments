@@ -1,8 +1,7 @@
-._preview_usdk6_1 {
+._preview_1ird4_1 {
   position: relative;
   width: 300px;
   height: 180px;
-  /* background-color: #333333; */
   border-radius: 10px;
   box-shadow: 7px 6px 14px -6px rgba(0, 0, 0, 0.75);
   -webkit-box-shadow: 7px 6px 14px -6px rgba(0, 0, 0, 0.75);
@@ -12,7 +11,7 @@
   margin: 70px 0;
 }
 
-._magnetic_usdk6_15 {
+._magnetic_1ird4_14 {
   position: absolute;
   width: 50px;
   height: 33px;
@@ -20,7 +19,7 @@
   left: 20px;
 }
 
-._visa_usdk6_23 {
+._visa_1ird4_22 {
   position: absolute;
   width: 50px;
   height: 33px;
@@ -28,14 +27,14 @@
   left: 230px;
 }
 
-._cardInfo_usdk6_31 {
+._cardInfo_1ird4_30 {
   margin: 0 auto;
   padding: 0 20px;
   padding-top: 25%;
   text-align: center;
 }
 
-._cardNumberContainer_usdk6_38 {
+._cardNumberContainer_1ird4_37 {
   display: flex;
   justify-content: space-between;
   width: 100%;
@@ -43,12 +42,12 @@
   letter-spacing: 2px;
 }
 
-._cardNumberContainer_usdk6_38 > span {
+._cardNumberContainer_1ird4_37 > span {
   text-align: center;
   white-space: pre;
 }
 
-._date_usdk6_51 {
+._date_1ird4_50 {
   display: flex;
   justify-content: flex-start;
   gap: 8px;

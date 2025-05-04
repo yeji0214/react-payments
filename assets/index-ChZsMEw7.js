@@ -1,6 +1,3 @@
-var __defProp = Object.defineProperty;
-var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
 function _mergeNamespaces(n, m) {
   for (var i = 0; i < m.length; i++) {
     const e = m[i];
@@ -13314,24 +13311,24 @@ const CARD_VALIDATION_INFO = {
   CURRENT_YEAR: Number((/* @__PURE__ */ new Date()).getFullYear().toString().slice(-2))
 };
 const useCardState = () => {
-  const [cardNumbers, setCardNumbers] = reactExports.useState(
-    Array(CARD_VALIDATION_INFO.TOTAL_CARD_INPUTS).fill("")
-  );
-  const [month, setMonth] = reactExports.useState("");
-  const [year, setYear] = reactExports.useState("");
-  const [CVC, setCVC] = reactExports.useState("");
-  const [password, setPassword] = reactExports.useState("");
-  const [cardColor, setCardColor] = reactExports.useState("#333333");
-  const [expiryHelperText, setExpiryHelperText] = reactExports.useState("");
-  const [expiryErrorIndex, setExpiryErrorIndex] = reactExports.useState(null);
-  const expiryInputRefs = reactExports.useRef([]);
-  const [cardNumbersHelperText, setCardNumbersHelperText] = reactExports.useState("");
-  const [cardNumbersErrorIndex, setCardNumbersErrorIndex] = reactExports.useState(null);
-  const cardNumbersInputRefs = reactExports.useRef([]);
-  const [CVCHelperText, setCVCHelperText] = reactExports.useState("");
-  const CVCInputRef = reactExports.useRef(null);
-  const [passwordHelperText, setPasswordHelperText] = reactExports.useState("");
-  const passwordInputRef = reactExports.useRef(null);
+  const [formValues, setFormValues] = reactExports.useState({
+    cardNumbers: Array(CARD_VALIDATION_INFO.TOTAL_CARD_INPUTS).fill(""),
+    expirationDate: {
+      month: "",
+      year: ""
+    },
+    CVC: "",
+    password: "",
+    cardCompany: "",
+    cardColor: "#333333"
+  });
+  const [formErrors, setFormErrors] = reactExports.useState({
+    expiry: { message: "", index: null },
+    cardNumbers: { message: "", index: null },
+    CVC: "",
+    password: ""
+  });
+  const [isOpenSelectCardCompany, setIsOpenSelectCardCompany] = reactExports.useState(false);
   const [showCardCompanySelect, setShowCardCompanySelect] = reactExports.useState(false);
   const [showExpiryInput, setShowExpiryInput] = reactExports.useState(false);
   const [showCVCInput, setShowCVCInput] = reactExports.useState(false);
@@ -13343,19 +13340,25 @@ const useCardState = () => {
   const [isValidPassword, setIsValidPassword] = reactExports.useState(false);
   const [isValidForm, setIsValidForm] = reactExports.useState(false);
   const [isSubmitted, setIsSubmitted] = reactExports.useState(false);
+  const expiryInputRefs = reactExports.useRef([]);
+  const cardNumbersInputRefs = reactExports.useRef([]);
+  const CVCInputRef = reactExports.useRef(null);
+  const passwordInputRef = reactExports.useRef(null);
   const resetCardForm = () => {
-    setCardNumbers(Array(CARD_VALIDATION_INFO.TOTAL_CARD_INPUTS).fill(""));
-    setMonth("");
-    setYear("");
-    setCVC("");
-    setPassword("");
-    setCardColor("#333333");
-    setExpiryHelperText("");
-    setExpiryErrorIndex(null);
-    setCardNumbersHelperText("");
-    setCardNumbersErrorIndex(null);
-    setCVCHelperText("");
-    setPasswordHelperText("");
+    setFormValues({
+      cardNumbers: Array(CARD_VALIDATION_INFO.TOTAL_CARD_INPUTS).fill(""),
+      expirationDate: { month: "", year: "" },
+      CVC: "",
+      password: "",
+      cardCompany: "",
+      cardColor: "#333333"
+    });
+    setFormErrors({
+      expiry: { message: "", index: null },
+      cardNumbers: { message: "", index: null },
+      CVC: "",
+      password: ""
+    });
     setShowCardCompanySelect(false);
     setShowExpiryInput(false);
     setShowCVCInput(false);
@@ -13369,33 +13372,13 @@ const useCardState = () => {
     setIsSubmitted(false);
   };
   return {
-    cardNumbers,
-    setCardNumbers,
-    month,
-    setMonth,
-    year,
-    setYear,
-    CVC,
-    setCVC,
-    password,
-    setPassword,
-    cardColor,
-    setCardColor,
-    expiryHelperText,
-    setExpiryHelperText,
-    expiryErrorIndex,
-    setExpiryErrorIndex,
+    formValues,
+    setFormValues,
+    formErrors,
+    setFormErrors,
     expiryInputRefs,
-    cardNumbersHelperText,
-    setCardNumbersHelperText,
-    cardNumbersErrorIndex,
-    setCardNumbersErrorIndex,
     cardNumbersInputRefs,
-    CVCHelperText,
-    setCVCHelperText,
     CVCInputRef,
-    passwordHelperText,
-    setPasswordHelperText,
     passwordInputRef,
     showCardCompanySelect,
     setShowCardCompanySelect,
@@ -13419,6 +13402,8 @@ const useCardState = () => {
     setIsValidForm,
     isSubmitted,
     setIsSubmitted,
+    isOpenSelectCardCompany,
+    setIsOpenSelectCardCompany,
     resetCardForm
   };
 };
@@ -13436,13 +13421,6 @@ const ERROR = {
     SPECIFIC_LENGTH: "자리로 입력해주세요."
   }
 };
-class CustomCardNumbersError extends Error {
-  constructor(message, index = -1) {
-    super(message);
-    __publicField(this, "index");
-    this.index = index;
-  }
-}
 const isNumber = (number) => {
   if (isNaN(Number(number))) return false;
   return true;
@@ -13467,238 +13445,267 @@ const isValidYear = (year) => {
   if (Number(year) < CARD_VALIDATION_INFO.MIN_VALID_YEAR) return false;
   return true;
 };
-const validateCardNumbers = (number, length) => {
-  number.map((num, index) => {
-    if (num.length > 0) {
-      if (!isNumber(num))
-        throw new CustomCardNumbersError(ERROR.REQUIRE.NUMBER, index);
-      if (!isCorrectLength(num, length))
-        throw new CustomCardNumbersError(
-          `${length}${ERROR.REQUIRE.SPECIFIC_LENGTH}`,
-          index
-        );
+const validateCardNumbers = (cardNumbers, length) => {
+  for (let i = 0; i < cardNumbers.length; i++) {
+    const num = cardNumbers[i];
+    if (i === 0) {
+      const isValidFirstCardNumbers = validateFirstCardNumbers(num);
+      if (!isValidFirstCardNumbers.isValid) return isValidFirstCardNumbers;
     }
-  });
+    if (num.length > 0) {
+      if (!isNumber(num)) {
+        return {
+          isValid: false,
+          errorIndex: i,
+          helperText: ERROR.REQUIRE.NUMBER
+        };
+      }
+      if (!isCorrectLength(num, length)) {
+        return {
+          isValid: false,
+          errorIndex: i,
+          helperText: `${length}${ERROR.REQUIRE.SPECIFIC_LENGTH}`
+        };
+      }
+    }
+  }
+  return {
+    isValid: true,
+    errorIndex: null,
+    helperText: ""
+  };
 };
 const validateFirstCardNumbers = (number) => {
   if (!isValidCardStartNumber(number))
-    throw new CustomCardNumbersError(ERROR.CARD_NUMBER.INVALID, 0);
+    return {
+      isValid: false,
+      errorIndex: 0,
+      helperText: ERROR.CARD_NUMBER.INVALID
+    };
+  return {
+    isValid: true,
+    errorIndex: null,
+    helperText: ""
+  };
 };
 const validateMonth = (month, length) => {
-  if (!isNumber(month)) throw new Error(ERROR.REQUIRE.NUMBER);
+  if (!isNumber(month))
+    return { isMonthValid: false, monthHelperText: ERROR.REQUIRE.NUMBER };
   if (!isCorrectLength(month, length))
-    throw new Error(`${length}${ERROR.REQUIRE.SPECIFIC_LENGTH}`);
-  if (!isValidMonth(month)) throw new Error(ERROR.EXPIRY.INVALID_MONTH);
+    return {
+      isMonthValid: false,
+      monthHelperText: `${length}${ERROR.REQUIRE.SPECIFIC_LENGTH}`
+    };
+  if (!isValidMonth(month))
+    return { isMonthValid: false, monthHelperText: ERROR.EXPIRY.INVALID_MONTH };
+  return { isMonthValid: true, monthHelperText: "" };
 };
 const validateYear = (year, length) => {
-  if (!isNumber(year)) throw new Error(ERROR.REQUIRE.NUMBER);
+  if (!isNumber(year))
+    return { isYearValid: false, yearHelperText: ERROR.REQUIRE.NUMBER };
   if (!isCorrectLength(year, length))
-    throw new Error(`${length}${ERROR.REQUIRE.SPECIFIC_LENGTH}`);
+    return {
+      isYearValid: false,
+      yearHelperText: `${length}${ERROR.REQUIRE.SPECIFIC_LENGTH}`
+    };
   if (Number(year) < CARD_VALIDATION_INFO.CURRENT_YEAR)
-    throw new Error(ERROR.EXPIRY.BELOW_CURRENT_YEAR);
-  if (!isValidYear(year)) throw new Error(ERROR.EXPIRY.INVALID_YEAR);
+    return {
+      isYearValid: false,
+      yearHelperText: ERROR.EXPIRY.BELOW_CURRENT_YEAR
+    };
+  if (!isValidYear(year))
+    return { isYearValid: false, yearHelperText: ERROR.EXPIRY.INVALID_YEAR };
+  return { isYearValid: true, yearHelperText: "" };
 };
 const validateCVC = (number, length) => {
-  if (!isNumber(number)) throw new Error(ERROR.REQUIRE.NUMBER);
+  if (!isNumber(number))
+    return { isValid: false, helperText: ERROR.REQUIRE.NUMBER };
   if (!isCorrectLength(number, length))
-    throw new Error(`${length}${ERROR.REQUIRE.SPECIFIC_LENGTH}`);
+    return {
+      isValid: false,
+      helperText: `${length}${ERROR.REQUIRE.SPECIFIC_LENGTH}`
+    };
+  return { isValid: true, helperText: "" };
 };
 const validatePassword = (number, length) => {
-  if (!isNumber(number)) throw new Error(ERROR.REQUIRE.NUMBER);
+  if (!isNumber(number))
+    return { isValid: false, helperText: ERROR.REQUIRE.NUMBER };
   if (!isCorrectLength(number, length))
-    throw new Error(`${length}${ERROR.REQUIRE.SPECIFIC_LENGTH}`);
+    return {
+      isValid: false,
+      helperText: `${length}${ERROR.REQUIRE.SPECIFIC_LENGTH}`
+    };
+  return { isValid: true, helperText: "" };
+};
+const isCardNumbersValid = (cardNumbers, cardNumbersHelperText) => {
+  const isAllFilled = cardNumbers.every(
+    (num) => num.length === CARD_VALIDATION_INFO.CARD_MAX_LENGTH
+  );
+  return isAllFilled && cardNumbersHelperText === "";
+};
+const isCardCompanySelected = (option2) => {
+  if (option2 !== "") return true;
+};
+const CARD_COMPANIES = {
+  BC카드: { name: "BC카드", color: "#F04651" },
+  신한카드: { name: "신한카드", color: "#0046FF" },
+  카카오뱅크: { name: "카카오뱅크", color: "#FFE600" },
+  현대카드: { name: "현대카드", color: "#000000" },
+  우리카드: { name: "우리카드", color: "#007BC8" },
+  롯데카드: { name: "롯데카드", color: "#ED1C24" },
+  하나카드: { name: "하나카드", color: "#009490" },
+  국민카드: { name: "국민카드", color: "#6A6056" }
 };
 const useCardInputHandlers = (cardState) => {
   const {
-    cardNumbers,
-    setCardNumbers,
-    cardNumbersHelperText,
-    setCardNumbersHelperText,
-    setCardNumbersErrorIndex,
+    formValues,
+    setFormValues,
+    setFormErrors,
     cardNumbersInputRefs,
-    setMonth,
-    month,
-    setYear,
-    year,
-    setExpiryHelperText,
-    setExpiryErrorIndex,
     expiryInputRefs,
-    setCVC,
-    setCVCHelperText,
-    CVCInputRef,
-    setPassword,
-    setPasswordHelperText,
-    passwordInputRef
+    setShowCardCompanySelect,
+    setShowExpiryInput,
+    setShowCVCInput,
+    setShowPasswordInput,
+    setIsOpenSelectCardCompany,
+    setIsValidCardNumbers,
+    setIsValidCardCompany,
+    setIsValidExpiry,
+    setIsValidCVC,
+    setIsValidPassword
   } = cardState;
   const handleCardNumbers = (index) => (e) => {
-    var _a, _b, _c, _d;
+    var _a, _b;
     const { value } = e.target;
-    try {
-      const newCardNumbers = [...cardNumbers];
-      newCardNumbers[index] = value;
-      setCardNumbers(newCardNumbers);
-      validateFirstCardNumbers(newCardNumbers[0]);
-      validateCardNumbers(
-        newCardNumbers,
-        CARD_VALIDATION_INFO.CARD_MAX_LENGTH
-      );
-      if (cardNumbersHelperText !== "") {
-        (_a = cardNumbersInputRefs.current[index]) == null ? void 0 : _a.focus();
-      }
-      setCardNumbersHelperText("");
-      setCardNumbersErrorIndex(null);
-      if (value.length === CARD_VALIDATION_INFO.CARD_MAX_LENGTH && index < CARD_VALIDATION_INFO.TOTAL_CARD_INPUTS - 1) {
-        (_b = cardNumbersInputRefs.current[index + 1]) == null ? void 0 : _b.focus();
-      }
-    } catch (error) {
-      if (error instanceof CustomCardNumbersError) {
-        if (error.message === ERROR.CARD_NUMBER.INVALID) {
-          (_c = cardNumbersInputRefs.current[0]) == null ? void 0 : _c.focus();
-          setCardNumbersErrorIndex(0);
-        } else {
-          (_d = cardNumbersInputRefs.current[error.index]) == null ? void 0 : _d.focus();
-          setCardNumbersErrorIndex(error.index);
-        }
-        setCardNumbersHelperText(error.message);
-      }
+    const newCardNumbers = [...formValues.cardNumbers];
+    newCardNumbers[index] = value;
+    const { isValid, errorIndex, helperText } = validateCardNumbers(
+      newCardNumbers,
+      CARD_VALIDATION_INFO.CARD_MAX_LENGTH
+    );
+    setFormValues((prev) => ({ ...prev, cardNumbers: newCardNumbers }));
+    setFormErrors((prev) => ({
+      ...prev,
+      cardNumbers: { message: helperText, index: errorIndex }
+    }));
+    if (errorIndex !== null) {
+      (_a = cardNumbersInputRefs.current[errorIndex]) == null ? void 0 : _a.focus();
+    }
+    if (!isValid) setIsValidCardNumbers(false);
+    if (isValid && isCardNumbersValid(newCardNumbers, helperText)) {
+      setIsValidCardNumbers(true);
+      setShowCardCompanySelect(true);
+    }
+    if (value.length === CARD_VALIDATION_INFO.CARD_MAX_LENGTH && index < CARD_VALIDATION_INFO.TOTAL_CARD_INPUTS - 1) {
+      (_b = cardNumbersInputRefs.current[index + 1]) == null ? void 0 : _b.focus();
     }
   };
   const handleDate = (e) => {
-    var _a, _b, _c;
+    var _a, _b;
     const { name, value } = e.target;
-    try {
-      if (name === "month") {
-        setMonth(value);
-        validateMonth(value, CARD_VALIDATION_INFO.EXPIRE_DATE_MAX_LENGTH);
-        (_a = expiryInputRefs.current[1]) == null ? void 0 : _a.focus();
-        validateYear(year, CARD_VALIDATION_INFO.EXPIRE_DATE_MAX_LENGTH);
-      } else if (name === "year") {
-        setYear(value);
-        validateMonth(month, CARD_VALIDATION_INFO.EXPIRE_DATE_MAX_LENGTH);
-        validateYear(value, CARD_VALIDATION_INFO.EXPIRE_DATE_MAX_LENGTH);
-      }
-      setExpiryHelperText("");
-      setExpiryErrorIndex(null);
-    } catch (error) {
-      if (error instanceof Error) {
-        if (error.message === ERROR.EXPIRY.INVALID_MONTH) {
-          (_b = expiryInputRefs.current[0]) == null ? void 0 : _b.focus();
-          setExpiryErrorIndex(0);
-        } else if (error.message === ERROR.EXPIRY.INVALID_YEAR) {
-          (_c = expiryInputRefs.current[1]) == null ? void 0 : _c.focus();
-          setExpiryErrorIndex(1);
-        }
-        setExpiryHelperText(error.message);
-      }
+    const { expirationDate } = formValues;
+    let nextMonth = expirationDate.month;
+    let nextYear = expirationDate.year;
+    if (name === "month") nextMonth = value;
+    if (name === "year") nextYear = value;
+    const { isMonthValid, monthHelperText } = validateMonth(
+      nextMonth,
+      CARD_VALIDATION_INFO.EXPIRE_DATE_MAX_LENGTH
+    );
+    const { isYearValid, yearHelperText } = validateYear(
+      nextYear,
+      CARD_VALIDATION_INFO.EXPIRE_DATE_MAX_LENGTH
+    );
+    setFormValues((prev) => ({
+      ...prev,
+      expirationDate: { month: nextMonth, year: nextYear }
+    }));
+    if (!isMonthValid) {
+      (_a = expiryInputRefs.current[0]) == null ? void 0 : _a.focus();
+      setFormErrors((prev) => ({
+        ...prev,
+        expiry: { message: monthHelperText, index: 0 }
+      }));
+      setIsValidExpiry(false);
+      return;
     }
+    if (!isYearValid) {
+      (_b = expiryInputRefs.current[1]) == null ? void 0 : _b.focus();
+      setFormErrors((prev) => ({
+        ...prev,
+        expiry: { message: yearHelperText, index: 1 }
+      }));
+      setIsValidExpiry(false);
+      return;
+    }
+    if (isMonthValid && isYearValid) setIsValidExpiry(true);
+    setFormErrors((prev) => ({
+      ...prev,
+      expiry: { message: "", index: null }
+    }));
+    setShowCVCInput(true);
   };
   const handleCVC = (e) => {
-    var _a;
-    try {
-      setCVC(e.target.value);
-      validateCVC(e.target.value, CARD_VALIDATION_INFO.CVC_MAX_LENGTH);
-      setCVCHelperText("");
-    } catch (error) {
-      if (error instanceof Error) {
-        setCVCHelperText(error.message);
-        (_a = CVCInputRef.current) == null ? void 0 : _a.focus();
-      }
+    const value = e.target.value;
+    const { isValid, helperText } = validateCVC(
+      value,
+      CARD_VALIDATION_INFO.CVC_MAX_LENGTH
+    );
+    setFormValues((prev) => ({ ...prev, CVC: value }));
+    if (!isValid) {
+      setFormErrors((prev) => ({ ...prev, CVC: helperText }));
+      setIsValidCVC(false);
+    } else {
+      setFormErrors((prev) => ({ ...prev, CVC: "" }));
+      setShowPasswordInput(true);
+      setIsValidCVC(true);
     }
   };
   const handlePassword = (e) => {
-    var _a;
-    try {
-      setPassword(e.target.value);
-      validatePassword(
-        e.target.value,
-        CARD_VALIDATION_INFO.PASSWORD_MAX_LENGTH
-      );
-      setPasswordHelperText("");
-    } catch (error) {
-      if (error instanceof Error) {
-        setPasswordHelperText(error.message);
-        (_a = passwordInputRef.current) == null ? void 0 : _a.focus();
-      }
+    const value = e.target.value;
+    const { isValid, helperText } = validatePassword(
+      value,
+      CARD_VALIDATION_INFO.PASSWORD_MAX_LENGTH
+    );
+    setFormValues((prev) => ({ ...prev, password: value }));
+    if (!isValid) {
+      setFormErrors((prev) => ({ ...prev, password: helperText }));
+      setIsValidPassword(false);
+    } else {
+      setFormErrors((prev) => ({ ...prev, password: "" }));
+      setIsValidPassword(true);
+    }
+  };
+  const handleCardCompany = (option2) => {
+    const selectedCompany = CARD_COMPANIES[option2];
+    setFormValues((prev) => ({
+      ...prev,
+      cardCompany: option2,
+      cardColor: (selectedCompany == null ? void 0 : selectedCompany.color) || "#333333"
+    }));
+    setIsOpenSelectCardCompany(false);
+    if (isCardCompanySelected(option2)) {
+      setShowExpiryInput(true);
+      setIsValidCardCompany(true);
     }
   };
   return {
     handleCardNumbers,
     handleDate,
     handleCVC,
-    handlePassword
+    handlePassword,
+    handleCardCompany
   };
 };
 const useCardValidation = (cardState) => {
   const {
-    cardNumbers,
-    cardNumbersHelperText,
-    month,
-    year,
-    expiryHelperText,
-    CVC,
-    CVCHelperText,
-    password,
-    passwordHelperText,
-    cardColor,
     isValidCardNumbers,
     isValidCardCompany,
     isValidExpiry,
     isValidCVC,
     isValidPassword,
-    setIsValidCardNumbers,
-    setIsValidCardCompany,
-    setIsValidExpiry,
-    setIsValidCVC,
-    setIsValidPassword,
-    setIsValidForm,
-    setShowCardCompanySelect,
-    setShowExpiryInput,
-    setShowCVCInput,
-    setShowPasswordInput
+    setIsValidForm
   } = cardState;
-  reactExports.useEffect(() => {
-    const isAllFilled = cardNumbers.every(
-      (num) => num.length === CARD_VALIDATION_INFO.CARD_MAX_LENGTH
-    );
-    if (isAllFilled && cardNumbersHelperText === "") {
-      setIsValidCardNumbers(true);
-      setShowCardCompanySelect(true);
-    } else {
-      setIsValidCardNumbers(false);
-    }
-  }, [cardNumbers, cardNumbersHelperText]);
-  reactExports.useEffect(() => {
-    if (cardColor !== "#333333") {
-      setIsValidCardCompany(true);
-      setShowExpiryInput(true);
-    } else {
-      setIsValidCardCompany(false);
-    }
-  }, [cardColor]);
-  reactExports.useEffect(() => {
-    const isAllFilled = month.length === CARD_VALIDATION_INFO.EXPIRE_DATE_MAX_LENGTH && year.length === CARD_VALIDATION_INFO.EXPIRE_DATE_MAX_LENGTH;
-    if (isAllFilled && expiryHelperText === "") {
-      setIsValidExpiry(true);
-      setShowCVCInput(true);
-    } else {
-      setIsValidExpiry(false);
-    }
-  }, [month, year, expiryHelperText]);
-  reactExports.useEffect(() => {
-    if (CVC.length === CARD_VALIDATION_INFO.CVC_MAX_LENGTH && CVCHelperText === "") {
-      setIsValidCVC(true);
-      setShowPasswordInput(true);
-    } else {
-      setIsValidCVC(false);
-    }
-  }, [CVC, CVCHelperText]);
-  reactExports.useEffect(() => {
-    if (password.length === CARD_VALIDATION_INFO.PASSWORD_MAX_LENGTH && passwordHelperText === "") {
-      setIsValidPassword(true);
-    } else {
-      setIsValidPassword(false);
-    }
-  }, [password, passwordHelperText]);
   reactExports.useEffect(() => {
     if (isValidCardNumbers && isValidCardCompany && isValidExpiry && isValidCVC && isValidPassword) {
       setIsValidForm(true);
@@ -13736,12 +13743,12 @@ const useCardContext = () => {
   }
   return context;
 };
-const preview = "_preview_usdk6_1";
-const magnetic = "_magnetic_usdk6_15";
-const visa = "_visa_usdk6_23";
-const cardInfo = "_cardInfo_usdk6_31";
-const cardNumberContainer = "_cardNumberContainer_usdk6_38";
-const date = "_date_usdk6_51";
+const preview = "_preview_1ird4_1";
+const magnetic = "_magnetic_1ird4_14";
+const visa = "_visa_1ird4_22";
+const cardInfo = "_cardInfo_1ird4_30";
+const cardNumberContainer = "_cardNumberContainer_1ird4_37";
+const date = "_date_1ird4_50";
 const styles$6 = {
   preview,
   magnetic,
@@ -13762,11 +13769,14 @@ const displayCardNumber = (blockValue, index) => {
   return blockValue.padEnd(maxLength, " ");
 };
 const CardPreview = () => {
-  const { cardNumbers, month, year, cardColor } = useCardContext();
+  const { formValues } = useCardContext();
+  const { cardNumbers, expirationDate, cardColor } = formValues;
+  const firstDigit = Number(cardNumbers[0][0]);
+  const firstTwoDigits = Number(cardNumbers[0].slice(0, 2));
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$6.preview, style: { backgroundColor: cardColor }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: "./magnetic.png", alt: "magnetic", className: styles$6.magnetic }),
-    Number(cardNumbers[0][0]) === CARD_VALIDATION_INFO.VISA_CARD_START_NUMBER && /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: "./Visa.png", alt: "visa", className: styles$6.visa }),
-    Number(cardNumbers[0].slice(0, 2)) >= CARD_VALIDATION_INFO.MASTER_CARD_MIN_START_NUMBER && Number(cardNumbers[0].slice(0, 2)) <= CARD_VALIDATION_INFO.MASTER_CARD_MAX_START_NUMBER && /* @__PURE__ */ jsxRuntimeExports.jsx(
+    firstDigit === CARD_VALIDATION_INFO.VISA_CARD_START_NUMBER && /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: "./Visa.png", alt: "visa", className: styles$6.visa }),
+    firstTwoDigits >= CARD_VALIDATION_INFO.MASTER_CARD_MIN_START_NUMBER && firstTwoDigits <= CARD_VALIDATION_INFO.MASTER_CARD_MAX_START_NUMBER && /* @__PURE__ */ jsxRuntimeExports.jsx(
       "img",
       {
         src: "./Mastercard.png",
@@ -13777,9 +13787,9 @@ const CardPreview = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$6.cardInfo, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles$6.cardNumberContainer, children: cardNumbers.map((number, index) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { "data-testid": `card-number-${index}`, children: displayCardNumber(number, index) }, index)) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles$6.date, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { children: [
-        month,
-        month.length === CARD_VALIDATION_INFO.EXPIRE_DATE_MAX_LENGTH && "/",
-        year
+        expirationDate.month,
+        expirationDate.month.length === CARD_VALIDATION_INFO.EXPIRE_DATE_MAX_LENGTH && "/",
+        expirationDate.year
       ] }) })
     ] })
   ] });
@@ -13834,32 +13844,21 @@ const INPUT_CONTAINER = {
   },
   PASSWORD: {
     TITLE: "비밀번호를 입력해 주세요",
-    SUBTITLE: "앞의 2자리를 입력해주세요"
+    SUBTITLE: `앞의 ${CARD_VALIDATION_INFO.PASSWORD_MAX_LENGTH}자리를 입력해주세요`
   }
 };
-const CARD_COMPANIES = [
-  { name: "BC카드", color: "#F04651" },
-  { name: "신한카드", color: "#0046FF" },
-  { name: "카카오뱅크", color: "#FFE600" },
-  { name: "현대카드", color: "#000000" },
-  { name: "우리카드", color: "#007BC8" },
-  { name: "롯데카드", color: "#ED1C24" },
-  { name: "하나카드", color: "#009490" },
-  { name: "국민카드", color: "#6A6056" }
-];
-const CARD_OPTIONS = CARD_COMPANIES.map((company) => company.name);
+const CARD_OPTIONS = Object.keys(
+  CARD_COMPANIES
+);
 const CardCompanySelect = () => {
-  const [isOpen, setIsOpen] = reactExports.useState(false);
-  const [selected2, setSelected] = reactExports.useState("");
-  const { setCardColor } = useCardContext();
-  const toggleOpen = () => setIsOpen(!isOpen);
-  const handleSelect = (option2) => {
-    setSelected(option2);
-    setIsOpen(false);
-    const selectedCompany = CARD_COMPANIES.find(
-      (company) => company.name === option2
-    );
-    if (selectedCompany) setCardColor(selectedCompany.color);
+  const {
+    formValues,
+    isOpenSelectCardCompany,
+    setIsOpenSelectCardCompany,
+    handleCardCompany
+  } = useCardContext();
+  const toggleOpen = () => {
+    setIsOpenSelectCardCompany((prev) => !prev);
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsx(
     InputContainer,
@@ -13868,15 +13867,21 @@ const CardCompanySelect = () => {
       subTitle: INPUT_CONTAINER.CARD_COMPANY.SUBTITLE,
       children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$5.wrapper, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$5.selectBox, onClick: toggleOpen, tabIndex: 0, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: selected2 ? styles$5.selected : styles$5.placeholder, children: selected2 || INPUT_CONTAINER.CARD_COMPANY.PLACEHOLDER }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "span",
+            {
+              className: formValues.cardCompany ? styles$5.selected : styles$5.placeholder,
+              children: formValues.cardCompany || INPUT_CONTAINER.CARD_COMPANY.PLACEHOLDER
+            }
+          ),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: styles$5.arrow, children: "▾" })
         ] }),
-        isOpen && /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: styles$5.optionList, children: CARD_OPTIONS.map((option2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+        isOpenSelectCardCompany && /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: styles$5.optionList, children: CARD_OPTIONS.map((option2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
           "li",
           {
             className: styles$5.option,
-            onClick: () => handleSelect(option2),
-            children: option2
+            onClick: () => handleCardCompany(option2),
+            children: CARD_COMPANIES[option2].name
           },
           option2
         )) })
@@ -13903,18 +13908,7 @@ const Input = React.forwardRef(
   }
 );
 const CardExpiryInput = () => {
-  const {
-    month,
-    year,
-    handleDate,
-    expiryHelperText,
-    expiryErrorIndex,
-    expiryInputRefs
-  } = useCardContext();
-  reactExports.useEffect(() => {
-    var _a;
-    (_a = expiryInputRefs.current[0]) == null ? void 0 : _a.focus();
-  }, []);
+  const { formValues, formErrors, handleDate, expiryInputRefs } = useCardContext();
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     InputContainer,
     {
@@ -13922,20 +13916,21 @@ const CardExpiryInput = () => {
       subTitle: INPUT_CONTAINER.EXPIRE.SUBTITLE,
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("label", { htmlFor: "", className: "label", children: "유효기간" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `inputContainer`, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "inputContainer", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Input,
             {
               type: "text",
               name: "month",
               placeholder: "MM",
-              value: month,
+              value: formValues.expirationDate.month,
               onChange: handleDate,
               ref: (element) => {
                 expiryInputRefs.current[0] = element;
               },
-              error: expiryErrorIndex === 0,
-              maxLength: CARD_VALIDATION_INFO.EXPIRE_DATE_MAX_LENGTH
+              error: formErrors.expiry.index === 0,
+              maxLength: CARD_VALIDATION_INFO.EXPIRE_DATE_MAX_LENGTH,
+              autoFocus: true
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -13944,33 +13939,23 @@ const CardExpiryInput = () => {
               type: "text",
               name: "year",
               placeholder: "YY",
-              value: year,
+              value: formValues.expirationDate.year,
               onChange: handleDate,
               ref: (element) => {
                 expiryInputRefs.current[1] = element;
               },
-              error: expiryErrorIndex === 0,
+              error: formErrors.expiry.index === 1,
               maxLength: CARD_VALIDATION_INFO.EXPIRE_DATE_MAX_LENGTH
             }
           )
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "helperText", children: expiryHelperText })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "helperText", children: formErrors.expiry.message })
       ]
     }
   );
 };
 const CardNumbersInput = () => {
-  const {
-    cardNumbers,
-    cardNumbersHelperText,
-    cardNumbersErrorIndex,
-    cardNumbersInputRefs,
-    handleCardNumbers
-  } = useCardContext();
-  reactExports.useEffect(() => {
-    var _a;
-    (_a = cardNumbersInputRefs.current[0]) == null ? void 0 : _a.focus();
-  }, []);
+  const { formValues, formErrors, cardNumbersInputRefs, handleCardNumbers } = useCardContext();
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     InputContainer,
     {
@@ -13978,7 +13963,7 @@ const CardNumbersInput = () => {
       subTitle: INPUT_CONTAINER.CARD_NUMBERS.SUBTITLE,
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "label", children: "카드 번호" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "inputContainer", children: cardNumbers.map((value, index) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "inputContainer", children: formValues.cardNumbers.map((value, index) => /* @__PURE__ */ jsxRuntimeExports.jsx(
           Input,
           {
             placeholder: "1234",
@@ -13986,24 +13971,21 @@ const CardNumbersInput = () => {
             value,
             onChange: handleCardNumbers(index),
             ref: (element) => {
-              cardNumbersInputRefs.current.push(element);
+              cardNumbersInputRefs.current[index] = element;
             },
-            error: index === cardNumbersErrorIndex,
-            maxLength: CARD_VALIDATION_INFO.CARD_MAX_LENGTH
+            error: index === formErrors.cardNumbers.index,
+            maxLength: CARD_VALIDATION_INFO.CARD_MAX_LENGTH,
+            autoFocus: index === 0
           },
           index
         )) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: `helperText`, children: cardNumbersHelperText })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "helperText", children: formErrors.cardNumbers.message })
       ]
     }
   );
 };
 const CVCInput = () => {
-  const { CVC, CVCHelperText, CVCInputRef, handleCVC } = useCardContext();
-  reactExports.useEffect(() => {
-    var _a;
-    (_a = CVCInputRef.current) == null ? void 0 : _a.focus();
-  }, []);
+  const { formValues, formErrors, CVCInputRef, handleCVC } = useCardContext();
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(InputContainer, { title: INPUT_CONTAINER.CVC.TITLE, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "label", children: "CVC" }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "inputContainer", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -14011,16 +13993,17 @@ const CVCInput = () => {
       {
         name: "cvc",
         placeholder: "123",
-        value: CVC,
+        value: formValues.CVC,
         onChange: handleCVC,
         ref: (element) => {
           CVCInputRef.current = element;
         },
-        error: CVCHelperText !== "",
-        maxLength: CARD_VALIDATION_INFO.CVC_MAX_LENGTH
+        error: formErrors.CVC !== "",
+        maxLength: CARD_VALIDATION_INFO.CVC_MAX_LENGTH,
+        autoFocus: true
       }
     ) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "helperText", children: CVCHelperText })
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "helperText", children: formErrors.CVC })
   ] });
 };
 const fadeInWrapper = "_fadeInWrapper_l8pol_12";
@@ -14028,11 +14011,7 @@ const styles$2 = {
   fadeInWrapper
 };
 const PasswordInput = () => {
-  const { password, passwordHelperText, passwordInputRef, handlePassword } = useCardContext();
-  reactExports.useEffect(() => {
-    var _a;
-    (_a = passwordInputRef.current) == null ? void 0 : _a.focus();
-  }, []);
+  const { formValues, formErrors, passwordInputRef, handlePassword } = useCardContext();
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     InputContainer,
     {
@@ -14046,16 +14025,17 @@ const PasswordInput = () => {
             type: "password",
             name: "password",
             placeholder: "12",
-            value: password,
+            value: formValues.password,
             onChange: handlePassword,
             ref: (element) => {
               passwordInputRef.current = element;
             },
-            error: passwordHelperText !== "",
-            maxLength: CARD_VALIDATION_INFO.PASSWORD_MAX_LENGTH
+            error: formErrors.password !== "",
+            maxLength: CARD_VALIDATION_INFO.PASSWORD_MAX_LENGTH,
+            autoFocus: true
           }
         ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "helperText", children: passwordHelperText })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "helperText", children: formErrors.password })
       ]
     }
   );
@@ -14066,31 +14046,33 @@ const styles$1 = {
   registerCardButton,
   registerAnotherCardButton
 };
-const Button = reactExports.forwardRef(({ name }, ref) => {
-  const navigate = useNavigate();
-  const { resetCardForm, setIsSubmitted } = useCardContext();
-  const handleRegisterCard = () => {
-    navigate("/card/register/complete");
-    setIsSubmitted(true);
-  };
-  const handleRegisterAnotherCard = () => {
-    resetCardForm();
-    navigate("/");
-    location.reload();
-    setIsSubmitted(false);
-  };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(
-    "button",
-    {
-      className: name === "register" ? styles$1.registerCardButton : styles$1.registerAnotherCardButton,
-      onClick: name === "register" ? () => handleRegisterCard() : () => handleRegisterAnotherCard(),
-      ref,
-      children: "확인"
-    }
-  );
-});
+const Button = reactExports.forwardRef(
+  ({ variant = "register", className, ...props }, ref) => {
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "button",
+      {
+        ref,
+        className: variant === "register" ? styles$1.registerCardButton : styles$1.registerAnotherCardButton,
+        ...props
+      }
+    );
+  }
+);
+const CARD_REGISTER_BASE = "/card/register";
+const ROUTE = {
+  HOME: "/",
+  CARD_REGISTER: {
+    COMPLETE: `${CARD_REGISTER_BASE}/complete`
+  }
+};
 const RegisterCardButton = () => {
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { name: "register" });
+  const navigate = useNavigate();
+  const { setIsSubmitted } = useCardContext();
+  const handleRegister = () => {
+    setIsSubmitted(true);
+    navigate(ROUTE.CARD_REGISTER.COMPLETE);
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "register", onClick: handleRegister, children: "확인" });
 };
 const CardRegisterForm = () => {
   const {
@@ -14117,26 +14099,32 @@ const styles = {
   completeIcon,
   registerCardText
 };
-const RegisterAnotherCardButton = reactExports.forwardRef(
-  (props, ref) => {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { name: "another", ref, ...props });
-  }
-);
+const CardRegisterConfirmButton = reactExports.forwardRef((_, ref) => {
+  const navigate = useNavigate();
+  const { resetCardForm, setIsSubmitted } = useCardContext();
+  const handleConfirm = () => {
+    resetCardForm();
+    setIsSubmitted(false);
+    navigate(ROUTE.HOME);
+    location.reload();
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "another", onClick: handleConfirm, ref, children: "확인" });
+});
 const CardRegisterComplete = () => {
   var _a;
-  const { cardNumbers, cardColor, isSubmitted } = useCardContext();
+  const { formValues, isSubmitted } = useCardContext();
   const navigate = useNavigate();
   const buttonRef = reactExports.useRef(null);
-  const selectedCompany = (_a = CARD_COMPANIES.find(
-    (company) => company.color === cardColor
+  const selectedCompany = (_a = Object.values(CARD_COMPANIES).find(
+    (company) => company.color === formValues.cardColor
   )) == null ? void 0 : _a.name;
   reactExports.useEffect(() => {
-    if (!isSubmitted) navigate("/");
+    if (!isSubmitted) navigate(ROUTE.HOME);
   }, [isSubmitted, navigate]);
   reactExports.useEffect(() => {
     const handleKeyDown = (e) => {
       var _a2;
-      if (e.key == "Enter") {
+      if (e.key === "Enter") {
         (_a2 = buttonRef.current) == null ? void 0 : _a2.click();
       }
     };
@@ -14155,13 +14143,12 @@ const CardRegisterComplete = () => {
       }
     ),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: styles.registerCardText, children: [
-      `${cardNumbers[0]}로 시작하는`,
+      `${formValues.cardNumbers[0]}로 시작하는`,
       " ",
       /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}),
-      " ",
-      `${selectedCompany}가 등록되었어요.`
+      `${selectedCompany ?? "알 수 없는 카드사"}가 등록되었어요.`
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(RegisterAnotherCardButton, { ref: buttonRef })
+    /* @__PURE__ */ jsxRuntimeExports.jsx(CardRegisterConfirmButton, { ref: buttonRef })
   ] });
 };
 function App() {
@@ -14169,7 +14156,7 @@ function App() {
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       Route,
       {
-        path: "/",
+        path: ROUTE.HOME,
         element: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "app", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(CardPreview, {}),
           /* @__PURE__ */ jsxRuntimeExports.jsx(CardRegisterForm, {})
@@ -14179,7 +14166,7 @@ function App() {
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       Route,
       {
-        path: "/card/register/complete",
+        path: ROUTE.CARD_REGISTER.COMPLETE,
         element: /* @__PURE__ */ jsxRuntimeExports.jsx(CardRegisterComplete, {})
       }
     )
